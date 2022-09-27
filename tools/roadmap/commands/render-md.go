@@ -14,6 +14,9 @@ import (
 //go:embed templates/roadmap.basic.md
 var mdRoadmapBasicTemplate string
 
+//go:embed templates/roadmap.ado.md
+var mdRoadmapAdoTemplate string
+
 //go:embed templates/roadmap.advanced.md
 var mdRoadmapAdvancedTemplate string
 
@@ -25,6 +28,10 @@ var mdRenderCommand = cli.Command{
 		&cli.BoolFlag{
 			Name:  "simple",
 			Usage: "Emits simplified Markdown for maximum compatibility.",
+		},
+		&cli.StringFlag{
+			Name:  "kind",
+			Usage: "Controls the type of markdown template used to generate the output.",
 		},
 		&cli.StringFlag{
 			Name:      "input",
@@ -53,8 +60,10 @@ var mdRenderCommand = cli.Command{
 		}
 
 		tmpl := mdRoadmapAdvancedTemplate
-		if c.Bool("simple") {
+		if c.Bool("simple") || c.String("kind") == "basic" {
 			tmpl = mdRoadmapBasicTemplate
+		} else if c.String("kind") == "ado" {
+			tmpl = mdRoadmapAdoTemplate
 		}
 
 		dot, err := renderTextTemplate(r, tmpl, template.FuncMap{
